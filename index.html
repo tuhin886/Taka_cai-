@@ -1,164 +1,246 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quick Wallet</title>
-    <!-- Tailwind CSS CDN -->
+    <title>Taka Cai Bot</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome for Icons -->
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Telegram Web App Script -->
+    <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        body {
-            background-color: #0d1117;
-            color: #ffffff;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        }
-    </style><script src='//libtl.com/sdk.js' data-zone='12034799' data-sdk='show_12034799'></script>
+    
+    <script src='//libtl.com/sdk.js' data-zone='12034799' data-sdk='show_12034799'></script>
 </head>
-<body class="flex flex-col min-h-screen pb-20">
+<body class="bg-[#090d16] text-white font-sans min-h-screen pb-20 select-none">
 
-    <!-- Top Header -->
-    <header class="flex justify-between items-center p-4">
+    <!-- Top Profile Section -->
+    <div class="flex items-center justify-between p-4 bg-[#0d1322]">
         <div class="flex items-center space-x-3">
-            <div id="user-avatar" class="w-10 h-10 rounded-full bg-cyan-500 flex items-center justify-center font-bold text-lg text-white">T</div>
+            <div id="user-avatar" class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-lg font-bold">
+                U
+            </div>
             <div>
-                <h2 id="username" class="font-bold text-base leading-tight">Tit978</h2>
-                <p id="user-id" class="text-xs text-gray-400">ID 7853253960</p>
+                <h1 id="username" class="font-bold text-base leading-tight">User</h1>
+                <p id="user-id" class="text-xs text-gray-400">ID: -----</p>
             </div>
         </div>
-        <button class="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center text-yellow-400">
-            <i class="fa-solid fa-sun"></i>
-        </button>
-    </header>
+        <button class="text-yellow-500 text-xl"><i class="fa-solid fa-gear"></i></button>
+    </div>
 
-    <!-- Main Content Container -->
-    <main class="px-4 flex-1 space-y-4">
-        
-        <!-- Total Balance Card -->
-        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-5 shadow-lg relative overflow-hidden">
-            <p class="text-xs text-blue-200 uppercase tracking-wider">Total balance</p>
-            <h1 class="text-3xl font-extrabold mt-1">$12.02 <span class="text-xl font-semibold text-blue-200">USDT</span></h1>
-            <div class="mt-3 inline-block bg-blue-900/60 backdrop-blur-sm text-blue-200 text-xs px-3 py-1 rounded-full font-medium">
+    <!-- MAIN CONTENT SECTIONS -->
+
+    <!-- 1. HOME & WATCH ADS TAB -->
+    <div id="tab-watch" class="tab-content p-4 space-y-4">
+        <!-- Balance Card -->
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-5 shadow-lg relative overflow-hidden">
+            <p class="text-xs uppercase tracking-wider text-blue-200 font-semibold">TOTAL BALANCE</p>
+            <div class="flex items-baseline space-x-1 mt-1">
+                <span class="text-3xl font-extrabold">$</span>
+                <span id="balance-amount" class="text-4xl font-extrabold">0.00</span>
+                <span class="text-sm font-medium text-blue-200 ml-1">USDT</span>
+            </div>
+            <span class="inline-block mt-3 bg-blue-900/50 text-blue-200 text-[10px] px-2.5 py-1 rounded-full border border-blue-400/30">
                 USDT • BEP20 / TRC20
-            </div>
+            </span>
         </div>
 
-        <!-- Watch & Earn Section -->
-        <section class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 space-y-4">
-            <h3 class="font-bold text-base">Watch & earn</h3>
-            
-            <div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 flex items-start space-x-3 text-xs text-amber-200/90">
-                <i class="fa-solid fa-triangle-exclamation text-amber-400 text-sm mt-0.5"></i>
-                <p>You must watch the ad to completion and tap the ad as instructed. Rewards are issued only after the Monetag rewarded interstitial completes.</p>
+        <!-- Watch & Earn Box -->
+        <div class="bg-[#0f172a] rounded-2xl p-4 border border-gray-800 space-y-4">
+            <h2 class="font-bold text-lg">Watch & earn</h2>
+
+            <div class="bg-amber-950/30 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2 text-xs text-amber-200/90">
+                <i class="fa-solid fa-triangle-exclamation text-amber-500 text-sm mt-0.5"></i>
+                <p>You must watch the ad to completion. Rewards are issued only after the Monetag rewarded interstitial completes.</p>
             </div>
 
             <!-- Stats Grid -->
             <div class="grid grid-cols-2 gap-3">
-                <div class="bg-slate-800/60 p-3.5 rounded-xl border border-slate-700/50">
-                    <h4 class="text-xl font-extrabold">1,675</h4>
-                    <p class="text-xs text-gray-400 mt-0.5">Ads watched</p>
+                <div class="bg-[#182238] p-3 rounded-xl border border-gray-800">
+                    <p id="ads-watched-count" class="text-2xl font-bold">0</p>
+                    <p class="text-xs text-gray-400">Ads watched</p>
                 </div>
-                <div class="bg-slate-800/60 p-3.5 rounded-xl border border-slate-700/50">
-                    <h4 class="text-xl font-extrabold text-emerald-400">$16.75</h4>
-                    <p class="text-xs text-gray-400 mt-0.5">Earned from ads</p>
+                <div class="bg-[#182238] p-3 rounded-xl border border-gray-800">
+                    <p id="earned-from-ads" class="text-2xl font-bold text-emerald-400">$0.00</p>
+                    <p class="text-xs text-gray-400">Earned from ads</p>
                 </div>
             </div>
 
-            <!-- Daily Ads Progress -->
-            <div class="space-y-2">
-                <div class="flex justify-between text-xs">
-                    <span class="text-gray-300">Daily ads</span>
-                    <span class="text-gray-400">25 / 500</span>
+            <!-- Progress Bar -->
+            <div>
+                <div class="flex justify-between text-xs text-gray-400 mb-1">
+                    <span>Daily ads</span>
+                    <span id="daily-ads-text">0 / 500</span>
                 </div>
-                <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
-                    <div class="bg-blue-500 h-full rounded-full" style="width: 5%;"></div>
+                <div class="w-full bg-gray-800 h-2 rounded-full overflow-hidden">
+                    <div id="daily-ads-progress" class="bg-blue-500 h-full w-0 transition-all duration-300"></div>
                 </div>
             </div>
 
             <!-- Watch Ad Button -->
-            <button onclick="watchAd()" class="w-full bg-blue-600 hover:bg-blue-500 active:scale-95 transition-all py-3.5 rounded-xl font-bold text-sm shadow-lg shadow-blue-600/35 flex items-center justify-center space-x-2">
+            <button onclick="watchAd()" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 active:scale-95 transition-all text-white font-bold rounded-xl shadow-lg shadow-blue-600/30 flex items-center justify-center space-x-2">
+                <i class="fa-solid fa-play"></i>
                 <span>Watch ad</span>
             </button>
-        </section>
+        </div>
 
-        <!-- Milestones Section -->
-        <section class="space-y-3">
-            <h3 class="font-bold text-base">Milestones</h3>
-            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-blue-400">
-                        <i class="fa-solid fa-play"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-bold text-sm">Monetag rewarded interstitial</h4>
-                        <p class="text-xs text-gray-400 mt-0.5">+$0.01 per completed ad • 500 daily limit</p>
-                    </div>
+        <!-- Milestones -->
+        <div class="space-y-2">
+            <h3 class="font-bold text-base text-gray-300">Milestones</h3>
+            <div class="bg-[#0f172a] p-3.5 rounded-xl border border-gray-800 flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-blue-900/50 flex items-center justify-center text-blue-400">
+                    <i class="fa-solid fa-play"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-sm">Monetag rewarded interstitial</h4>
+                    <p class="text-xs text-gray-400">+$0.01 per completed ad • 500 daily limit</p>
                 </div>
             </div>
-        </section>
+        </div>
+    </div>
 
-    </main>
+    <!-- 2. TASKS TAB -->
+    <div id="tab-tasks" class="tab-content hidden p-4 space-y-4">
+        <h2 class="font-bold text-xl">Tasks</h2>
+        <div class="bg-[#0f172a] p-4 rounded-xl border border-gray-800 text-center text-gray-400 text-sm">
+            <p>No extra tasks available right now. Check back later!</p>
+        </div>
+    </div>
+
+    <!-- 3. INVITE TAB -->
+    <div id="tab-invite" class="tab-content hidden p-4 space-y-4">
+        <h2 class="font-bold text-xl">Invite Friends</h2>
+        <div class="bg-[#0f172a] p-4 rounded-xl border border-gray-800 space-y-3">
+            <p class="text-sm text-gray-300">Invite your friends and earn 10% from their ad views!</p>
+            <button onclick="copyRefLink()" class="w-full py-3 bg-indigo-600 font-bold rounded-xl">Copy Invite Link</button>
+        </div>
+    </div>
+
+    <!-- 4. WITHDRAW TAB -->
+    <div id="tab-withdraw" class="tab-content hidden p-4 space-y-4">
+        <h2 class="font-bold text-xl">Withdraw Funds</h2>
+        <div class="bg-[#0f172a] p-4 rounded-xl border border-gray-800 space-y-3">
+            <p class="text-xs text-gray-400">Minimum withdrawal: $5.00 USDT</p>
+            <input type="text" placeholder="Enter USDT Wallet Address" class="w-full p-3 bg-gray-900 border border-gray-700 rounded-xl text-sm focus:outline-none">
+            <button class="w-full py-3 bg-emerald-600 font-bold rounded-xl">Request Payout</button>
+        </div>
+    </div>
 
     <!-- Bottom Navigation Bar -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-[#0b0e14] border-t border-slate-800/80 px-4 py-2 flex justify-around items-center z-50">
-        <a href="#" class="flex flex-col items-center text-gray-400 hover:text-white py-1">
+    <nav class="fixed bottom-0 left-0 right-0 bg-[#090d16]/95 backdrop-blur-md border-t border-gray-800 flex justify-around py-2.5 text-xs text-gray-400 z-50">
+        <button onclick="switchTab('tab-watch', this)" class="nav-btn flex flex-col items-center space-y-1 text-blue-500">
             <i class="fa-solid fa-house text-lg"></i>
-            <span class="text-[10px] mt-1">Home</span>
-        </a>
-        <a href="#" class="flex flex-col items-center text-gray-400 hover:text-white py-1">
+            <span>Home</span>
+        </button>
+        <button onclick="switchTab('tab-tasks', this)" class="nav-btn flex flex-col items-center space-y-1">
             <i class="fa-solid fa-list-check text-lg"></i>
-            <span class="text-[10px] mt-1">Tasks</span>
-        </a>
-        <a href="#" class="flex flex-col items-center text-blue-500 py-1">
+            <span>Tasks</span>
+        </button>
+        <button onclick="switchTab('tab-watch', this)" class="nav-btn flex flex-col items-center space-y-1">
             <i class="fa-solid fa-play text-lg"></i>
-            <span class="text-[10px] mt-1">Watch Ads</span>
-        </a>
-        <a href="#" class="flex flex-col items-center text-gray-400 hover:text-white py-1">
+            <span>Watch Ads</span>
+        </button>
+        <button onclick="switchTab('tab-invite', this)" class="nav-btn flex flex-col items-center space-y-1">
             <i class="fa-solid fa-user-group text-lg"></i>
-            <span class="text-[10px] mt-1">Invite</span>
-        </a>
-        <a href="#" class="flex flex-col items-center text-gray-400 hover:text-white py-1">
+            <span>Invite</span>
+        </button>
+        <button onclick="switchTab('tab-withdraw', this)" class="nav-btn flex flex-col items-center space-y-1">
             <i class="fa-solid fa-wallet text-lg"></i>
-            <span class="text-[10px] mt-1">Withdraw</span>
-        </a>
+            <span>Withdraw</span>
+        </button>
     </nav>
 
+    <!-- App Logic Script -->
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
+        // 1. User Info Integration
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             const user = tg.initDataUnsafe.user;
-            document.getElementById('username').innerText = user.first_name || 'User';
-            document.getElementById('user-id').innerText = `ID ${user.id}`;
-            document.getElementById('user-avatar').innerText = (user.first_name || 'T').charAt(0).toUpperCase();
+            document.getElementById('username').innerText = user.first_name + (user.last_name ? ' ' + user.last_name : '');
+            document.getElementById('user-id').innerText = 'ID: ' + user.id;
+            if (user.photo_url) {
+                document.getElementById('user-avatar').innerHTML = `<img src="${user.photo_url}" class="w-full h-full rounded-full object-cover">`;
+            } else {
+                document.getElementById('user-avatar').innerText = user.first_name.charAt(0).toUpperCase();
+            }
         }
 
-        function watchAd() {
+        // 2. State Management
+        const REWARD_PER_AD = 0.01; // প্রতি অ্যাডে কত ডলার যোগ হবে ($0.01)
+        const DAILY_MAX = 500;
+
+        let userData = JSON.parse(localStorage.getItem('taka_cai_user_data')) || {
+            balance: 0.00,
+            adsWatched: 0,
+            dailyAds: 0,
+            lastDate: new Date().toISOString().slice(0, 10)
+        };
+
+        // Reset Daily Ads if new day
+        const today = new Date().toISOString().slice(0, 10);
+        if (userData.lastDate !== today) {
+            userData.dailyAds = 0;
+            userData.lastDate = today;
+            saveUserData();
+        }
+
+        function saveUserData() {
+            localStorage.setItem('taka_cai_user_data', JSON.stringify(userData));
+            updateUI();
+        }
+
+        function updateUI() {
+            document.getElementById('balance-amount').innerText = userData.balance.toFixed(2);
+            document.getElementById('ads-watched-count').innerText = userData.adsWatched;
+            document.getElementById('earned-from-ads').innerText = '$' + (userData.adsWatched * REWARD_PER_AD).toFixed(2);
+            document.getElementById('daily-ads-text').innerText = `${userData.dailyAds} / ${DAILY_MAX}`;
             
-
-// Rewarded interstitial
-
-show_12034799().then(() => {
-    // You need to add your user reward function here, which will be executed after the user watches the ad.
-    // For more details, please refer to the detailed instructions.
-    alert('You have seen an ad!');
-})
-
-        
+            const progressPercent = Math.min((userData.dailyAds / DAILY_MAX) * 100, 100);
+            document.getElementById('daily-ads-progress').style.width = progressPercent + '%';
         }
-     // Tasks and navigation interaction logic added
-  document.addEventListener("DOMContentLoaded", function() {
-      const navButtons = document.querySelectorAll('nav a');
-      navButtons.forEach(button => {
-          button.addEventListener('click', function(e) {
-              console.log("Navigation item clicked");
-          });
-      });
-  });
- </script>
+
+        // Initial UI Load
+        updateUI();
+
+        // 3. Watch Ad Function
+        function watchAd() {
+            if (userData.dailyAds >= DAILY_MAX) {
+                alert('আপনার আজকের ৫টি অ্যাড দেখা সম্পূর্ণ হয়েছে!');
+                return;
+            }
+
+            if (typeof show_12034799 === 'function') {
+                show_12034799().then(() => {
+                    // Update User Stats
+                    userData.balance += REWARD_PER_AD;
+                    userData.adsWatched += 1;
+                    userData.dailyAds += 1;
+                    saveUserData();
+
+                    alert('বিজ্ঞাপন দেখার জন্য ধন্যবাদ! $0.01 আপনার ব্যালেন্সে যোগ করা হয়েছে।');
+                }).catch((err) => {
+                    alert('বিজ্ঞাপন লোড হতে ব্যর্থ হয়েছে, অনুগ্রহ করে আবার চেষ্টা করুন।');
+                });
+            } else {
+                alert('অ্যাড নেটওয়ার্ক প্রস্তুত হচ্ছে, কিছু মুহূর্ত পর আবার চেষ্টা করুন!');
+            }
+        }
+
+        // 4. Tab Navigation Logic
+        function switchTab(tabId, btnElement) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('text-blue-500'));
+            btnElement.classList.add('text-blue-500');
+        }
+
+        function copyRefLink() {
+            alert('রেফারেল লিংক কপি করা হয়েছে!');
+        }
+    </script>
 </body>
 </html>
