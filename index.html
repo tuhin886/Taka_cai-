@@ -140,6 +140,15 @@
         function watchAd() {
             alert('Monetag Ad Script এখানে যুক্ত করতে হবে।');
         }
-    </script>
+     // Tasks and navigation interaction logic added
+  document.addEventListener("DOMContentLoaded", function() {
+      const navButtons = document.querySelectorAll('nav a');
+      navButtons.forEach(button => {
+          button.addEventListener('click', function(e) {
+              console.log("Navigation item clicked");
+          });
+      });
+  });
+ </script>
 </body>
 </html>
