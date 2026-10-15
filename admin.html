@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taka Cai - Admin Panel</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+</head>
+<body class="bg-[#090d16] text-white font-sans min-h-screen p-4 select-none">
+
+    <!-- Admin Header -->
+    <div class="flex items-center justify-between p-4 bg-[#0d1322] rounded-2xl mb-4">
+        <div>
+            <h1 class="font-bold text-lg text-emerald-400"><i class="fa-solid fa-user-shield"></i> Admin Panel</h1>
+            <p class="text-xs text-gray-400">টাকা চাই - ইউজার ম্যানেজমেন্ট</p>
+        </div>
+        <a href="index.html" class="bg-gray-800 text-xs px-3 py-2 rounded-xl text-gray-300">Back to App</a>
+    </div>
+
+    <!-- Stats Overview -->
+    <div class="grid grid-cols-2 gap-3 mb-4">
+        <div class="bg-[#0f172a] p-3 rounded-xl border border-gray-800">
+            <p id="total-users" class="text-2xl font-bold text-blue-400">0</p>
+            <p class="text-xs text-gray-400">Total Users</p>
+        </div>
+        <div class="bg-[#0f172a] p-3 rounded-xl border border-gray-800">
+            <p id="total-balance" class="text-2xl font-bold text-emerald-400">$0.00</p>
+            <p class="text-xs text-gray-400">Total Liabilities</p>
+        </div>
+    </div>
+
+    <!-- Users List Section -->
+    <div class="bg-[#0f172a] rounded-2xl p-4 border border-gray-800">
+        <h2 class="font-bold text-sm text-gray-300 mb-3">Live Users List</h2>
+        <div id="users-list" class="space-y-3">
+            <p class="text-xs text-gray-500 text-center py-4">Loading users data...</p>
+        </div>
+    </div>
+
+    <!-- Admin Script -->
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        // ফায়ারবেস কনফিগারেশন
+        const firebaseConfig = {
+            databaseURL: "https://taka-cai-fa50a-default-rtdb.firebaseio.com/"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        const usersRef = database.ref('users');
+        usersRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            const listContainer = document.getElementById('users-list');
+            listContainer.innerHTML = '';
+
+            if (!data) {
+                listContainer.innerHTML = '<p class="text-xs text-gray-500 text-center py-4">কোনো ইউজার ডাটা পাওয়া যায়নি।</p>';
+                document.getElementById('total-users').innerText = '0';
+                document.getElementById('total-balance').innerText = '$0.00';
+                return;
+            }
+
+            let userCount = 0;
+            let sumBalance = 0;
+
+            Object.keys(data).forEach((userId) => {
+                userCount++;
+                const user = data[userId];
+                sumBalance += (user.balance || 0);
+
+                const userCard = document.createElement('div');
+                userCard.className = 'bg-[#182238] p-3 rounded-xl border border-gray-800 flex items-center justify-between text-xs';
+                
+                userCard.innerHTML = `
+                    <div>
+                        <p class="font-bold text-sm text-white">${user.name || 'Unknown'}</p>
+                        <p class="text-gray-400">ID: ${userId}</p>
+                        <p class="text-gray-400 mt-1">Ads Watched: <span class="text-blue-400 font-bold">${user.adsWatched || 0}</span></p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-emerald-400 font-bold text-sm">$${(user.balance || 0).toFixed(2)}</p>
+                        <button onclick="resetUser('${userId}')" class="mt-2 bg-red-900/40 text-red-300 px-2 py-1 rounded border border-red-700/50">Reset</button>
+                    </div>
+                `;
+                listContainer.appendChild(userCard);
+            });
+
+            document.getElementById('total-users').innerText = userCount;
+            document.getElementById('total-balance').innerText = '$' + sumBalance.toFixed(2);
+        });
+
+        // ইউজারের ব্যালেন্স রিসেট করার ফাংশন
+        function resetUser(userId) {
+            if (confirm('এই ইউজারের ব্যালেন্স কি শূন্য করে দিতে চান?')) {
+                database.ref('users/' + userId).update({
+                    balance: 0.00,
+                    adsWatched: 0
+                });
+            }
+        }
+    </script>
+</body>
+</html>
