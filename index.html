@@ -11,7 +11,12 @@
     <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
+    <!-- Monetag SDK -->
     <script src='//libtl.com/sdk.js' data-zone='12034799' data-sdk='show_12034799'></script>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body class="bg-[#090d16] text-white font-sans min-h-screen pb-20 select-none">
 
@@ -156,11 +161,27 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // 1. User Info Integration
+        // -------------------------------------------------------------
+        // FIREBASE INITIALIZATION
+        // -------------------------------------------------------------
+        const firebaseConfig = {
+            databaseURL: "https://taka-cai-fa50a-default-rtdb.firebaseio.com/"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        let userId = "demo_user";
+        let userName = "User";
+
+        // 1. User Info Integration & Telegram Data Setup
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             const user = tg.initDataUnsafe.user;
-            document.getElementById('username').innerText = user.first_name + (user.last_name ? ' ' + user.last_name : '');
-            document.getElementById('user-id').innerText = 'ID: ' + user.id;
+            userId = user.id.toString();
+            userName = user.first_name + (user.last_name ? ' ' + user.last_name : '');
+            
+            document.getElementById('username').innerText = userName;
+            document.getElementById('user-id').innerText = 'ID: ' + userId;
+            
             if (user.photo_url) {
                 document.getElementById('user-avatar').innerHTML = `<img src="${user.photo_url}" class="w-full h-full rounded-full object-cover">`;
             } else {
@@ -169,58 +190,72 @@
         }
 
         // 2. State Management
-        const REWARD_PER_AD = 0.01; // প্রতি অ্যাডে কত ডলার যোগ হবে ($0.01)
+        const REWARD_PER_AD = 0.01;
         const DAILY_MAX = 500;
 
-        let userData = JSON.parse(localStorage.getItem('taka_cai_user_data')) || {
+        let userData = {
+            name: userName,
             balance: 0.00,
             adsWatched: 0,
             dailyAds: 0,
             lastDate: new Date().toISOString().slice(0, 10)
         };
 
-        // Reset Daily Ads if new day
-        const today = new Date().toISOString().slice(0, 10);
-        if (userData.lastDate !== today) {
-            userData.dailyAds = 0;
-            userData.lastDate = today;
-            saveUserData();
-        }
+        // Load User Data From Firebase
+        const userRef = database.ref('users/' + userId);
+        
+        userRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                const today = new Date().toISOString().slice(0, 10);
+                userData = data;
+                
+                // Reset daily ads if new day
+                if (userData.lastDate !== today) {
+                    userData.dailyAds = 0;
+                    userData.lastDate = today;
+                    saveUserData();
+                }
+            } else {
+                // New User Setup in Firebase
+                saveUserData();
+            }
+            updateUI();
+        });
 
         function saveUserData() {
-            localStorage.setItem('taka_cai_user_data', JSON.stringify(userData));
+            userData.name = userName;
+            userRef.set(userData);
             updateUI();
         }
 
         function updateUI() {
-            document.getElementById('balance-amount').innerText = userData.balance.toFixed(2);
-            document.getElementById('ads-watched-count').innerText = userData.adsWatched;
-            document.getElementById('earned-from-ads').innerText = '$' + (userData.adsWatched * REWARD_PER_AD).toFixed(2);
-            document.getElementById('daily-ads-text').innerText = `${userData.dailyAds} / ${DAILY_MAX}`;
+            document.getElementById('balance-amount').innerText = (userData.balance || 0).toFixed(2);
+            document.getElementById('ads-watched-count').innerText = userData.adsWatched || 0;
+            document.getElementById('earned-from-ads').innerText = '$' + ((userData.adsWatched || 0) * REWARD_PER_AD).toFixed(2);
+            document.getElementById('daily-ads-text').innerText = `${userData.dailyAds || 0} / ${DAILY_MAX}`;
             
-            const progressPercent = Math.min((userData.dailyAds / DAILY_MAX) * 100, 100);
+            const progressPercent = Math.min(((userData.dailyAds || 0) / DAILY_MAX) * 100, 100);
             document.getElementById('daily-ads-progress').style.width = progressPercent + '%';
         }
 
-        // Initial UI Load
-        updateUI();
-
         // 3. Watch Ad Function
         function watchAd() {
-            if (userData.dailyAds >= DAILY_MAX) {
-                alert('আপনার আজকের ৫টি অ্যাড দেখা সম্পূর্ণ হয়েছে!');
+            if ((userData.dailyAds || 0) >= DAILY_MAX) {
+                alert('আপনার আজকের দৈনিক অ্যাড সীমানা শেষ হয়েছে!');
                 return;
             }
 
             if (typeof show_12034799 === 'function') {
                 show_12034799().then(() => {
                     // Update User Stats
-                    userData.balance += REWARD_PER_AD;
-                    userData.adsWatched += 1;
-                    userData.dailyAds += 1;
+                    userData.balance = (userData.balance || 0) + REWARD_PER_AD;
+                    userData.adsWatched = (userData.adsWatched || 0) + 1;
+                    userData.dailyAds = (userData.dailyAds || 0) + 1;
+                    
                     saveUserData();
 
-                    alert('বিজ্ঞাপন দেখার জন্য ধন্যবাদ! $0.01 আপনার ব্যালেন্সে যোগ করা হয়েছে।');
+                    alert('বিজ্ঞাপন দেখার জন্য ধন্যবাদ! $0.01 আপনার ফায়ারবেস ব্যালেন্সে যোগ করা হয়েছে।');
                 }).catch((err) => {
                     alert('বিজ্ঞাপন লোড হতে ব্যর্থ হয়েছে, অনুগ্রহ করে আবার চেষ্টা করুন।');
                 });
